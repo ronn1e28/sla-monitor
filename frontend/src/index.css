@@ -23,5 +23,5 @@ nav a.active { color: #111827; border-bottom: 2px solid #2563eb; }
 .filters { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; margin: 12px 0; }
 .pager { display: flex; gap: 12px; align-items: center; margin-top: 12px; }
 .dim { opacity: 0.5; }
-
 .topnav { max-width: 1100px; margin: 0 auto; padding: 16px 24px 0; display: flex; gap: 16px; }
+.hint { font-size: 0.85rem; color: #6b7280; margin: 0 0 8px; }

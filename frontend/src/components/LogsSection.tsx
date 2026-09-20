@@ -1,10 +1,30 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { supabase } from "../lib/supabase";
 import type { CheckRow } from "../lib/types";
 
 const PAGE_SIZE = 100;
 const dayStart = (d: string) => `${d}T00:00:00Z`;
 const nextDay = (d: string) => new Date(Date.parse(dayStart(d)) + 86_400_000).toISOString();
+
+const fmtDay = (d: string) =>
+  new Date(`${d}T00:00:00Z`).toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    timeZone: "UTC",
+  });
+
+// ["2025-04-03", "2025-04-04", "2025-04-06"] -> [["2025-04-03","2025-04-04"], ["2025-04-06","2025-04-06"]]
+function toRanges(days: string[]): [string, string][] {
+  const out: [string, string][] = [];
+  for (const d of days) {
+    const last = out[out.length - 1];
+    const gap = last ? Date.parse(dayStart(d)) - Date.parse(dayStart(last[1])) : 0;
+    if (last && gap === 86_400_000) last[1] = d;
+    else out.push([d, d]);
+  }
+  return out;
+}
 
 type Result = { key: string; rows: CheckRow[]; total: number; error: string | null };
 
@@ -15,6 +35,20 @@ export default function LogsSection() {
   const [failuresOnly, setFailuresOnly] = useState(false);
   const [page, setPage] = useState(0);
   const [result, setResult] = useState<Result | null>(null);
+  const [days, setDays] = useState<string[]>([]);
+
+  // Which dates have data (drives the picker limits and the hint line)
+  useEffect(() => {
+    supabase
+      .from("available_dates")
+      .select("day")
+      .order("day")
+      .then(({ data }) => setDays((data ?? []).map((r) => r.day as string)));
+  }, []);
+
+  const ranges = useMemo(() => toRanges(days), [days]);
+  const minDay = days[0];
+  const maxDay = days[days.length - 1];
 
   const key = `${mode}|${from}|${to}|${failuresOnly}|${page}`;
   const badRange = mode === "range" && !!from && !!to && from > to;
@@ -96,6 +130,8 @@ export default function LogsSection() {
           {mode === "single" ? "Date" : "From"}{" "}
           <input
             type="date"
+            min={minDay}
+            max={maxDay}
             value={from}
             onChange={(e) => {
               setFrom(e.target.value);
@@ -108,6 +144,8 @@ export default function LogsSection() {
             To{" "}
             <input
               type="date"
+              min={minDay}
+              max={maxDay}
               value={to}
               onChange={(e) => {
                 setTo(e.target.value);
@@ -129,6 +167,15 @@ export default function LogsSection() {
         </label>
         <button onClick={clear}>Clear</button>
       </div>
+
+      {ranges.length > 0 && (
+        <p className="hint">
+          Data available for:{" "}
+          {ranges
+            .map(([a, b]) => (a === b ? fmtDay(a) : `${fmtDay(a)} – ${fmtDay(b)}`))
+            .join(" · ")}
+        </p>
+      )}
 
       {badRange && <p role="alert">The start date is after the end date.</p>}
       {result?.error && <p role="alert">Could not load logs: {result.error}</p>}
