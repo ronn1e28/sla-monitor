@@ -1,0 +1,1 @@
+alter table uploads add column report jsonb;
