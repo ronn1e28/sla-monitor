@@ -5,7 +5,7 @@ import DashboardPage from "./pages/DashboardPage";
 export default function App() {
   return (
     <HashRouter>
-      <nav style={{ display: "flex", gap: 16, padding: 16 }}>
+      <nav className="topnav">
         <NavLink to="/">Dashboard</NavLink>
         <NavLink to="/upload">Upload</NavLink>
       </nav>
