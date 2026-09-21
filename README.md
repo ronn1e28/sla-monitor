@@ -6,12 +6,12 @@ Upload a multi-day CSV of health checks, clean it in a cloud function, store it 
 
 | What | URL |
 |---|---|
-| Dashboard | `<LIVE-DASHBOARD-URL>/#/` |
-| Upload page | `<LIVE-DASHBOARD-URL>/#/upload` |
-| Cloud function (POST) | `https://<PROJECT-REF>.supabase.co/functions/v1/process-upload` |
+| Dashboard | `https://sla-monitor-eonmfcq3k-rohan-deshpandes-projects-d541c8ce.vercel.app/#/` |
+| Upload page | `https://sla-monitor-eonmfcq3k-rohan-deshpandes-projects-d541c8ce.vercel.app/#/upload` |
+| Cloud function (POST) | `https://yziqxnuickuoctiqlucu.supabase.co/functions/v1/process-upload` |
 | Database | Supabase Postgres (not directly exposed; the dashboard reads it through the Supabase API) |
 
-**Last verified live:** `<DATE>`
+**Last verified live:** 21 September 2026, 06:10
 
 The database and function run on Supabase's free tier, which pauses a project after a period of inactivity. If the dashboard shows an error, open the Supabase dashboard and click *Restore project*, or see [Redeploying](#running-and-redeploying) to recreate everything from scratch.
 
