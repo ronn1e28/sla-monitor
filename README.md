@@ -216,7 +216,7 @@ sla-monitor/
 - **Public function hardening:** restrict CORS to the frontend origin, add rate limiting, and add authentication with per-tenant data.
 - **Scale:** the upload is processed in a single request. Large files should go to storage and be processed in the background with a status the UI can poll. The stats views are computed on the fly, so at larger volumes I'd use materialized views or rollup tables.
 - **SLA semantics:** configurable targets, credit tiers, treating missing checks as "unknown" explicitly, and latency percentiles (p50/p95) on the dashboard.
-- **UI:** grey out individual days with no data (a custom day picker), charts of availability over time, CSV export, and an accessibility pass.
+- **UI:** grey out individual days with no data (a custom day picker), charts of availability over time, CSV export, and an accessibility pass. The dashboard is currently dark-mode only with JetBrains Mono for stat numbers.
 
 ## AI tools
 
