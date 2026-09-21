@@ -14,7 +14,6 @@ const fmtDay = (d: string) =>
     timeZone: "UTC",
   });
 
-// ["2025-04-03", "2025-04-04", "2025-04-06"] -> [["2025-04-03","2025-04-04"], ["2025-04-06","2025-04-06"]]
 function toRanges(days: string[]): [string, string][] {
   const out: [string, string][] = [];
   for (const d of days) {
@@ -37,7 +36,6 @@ export default function LogsSection() {
   const [result, setResult] = useState<Result | null>(null);
   const [days, setDays] = useState<string[]>([]);
 
-  // Which dates have data (drives the picker limits and the hint line)
   useEffect(() => {
     supabase
       .from("available_dates")
@@ -82,9 +80,7 @@ export default function LogsSection() {
         });
       });
 
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, [key, mode, from, to, failuresOnly, page, badRange]);
 
   const total = result?.total ?? 0;
@@ -100,71 +96,61 @@ export default function LogsSection() {
 
   return (
     <section className="panel">
-      <h2 style={{ marginTop: 0 }}>Check logs</h2>
+      <h2 style={{ margin: "0 0 16px", fontSize: "1.05rem", fontWeight: 700, letterSpacing: "-0.01em" }}>
+        Check logs
+      </h2>
 
       <div className="filters">
         <label>
           <input
             type="radio"
             checked={mode === "single"}
-            onChange={() => {
-              setMode("single");
-              setTo("");
-              setPage(0);
-            }}
-          />{" "}
+            onChange={() => { setMode("single"); setTo(""); setPage(0); }}
+          />
           Single date
         </label>
         <label>
           <input
             type="radio"
             checked={mode === "range"}
-            onChange={() => {
-              setMode("range");
-              setPage(0);
-            }}
-          />{" "}
+            onChange={() => { setMode("range"); setPage(0); }}
+          />
           Date range
         </label>
+
         <label>
-          {mode === "single" ? "Date" : "From"}{" "}
+          {mode === "single" ? "Date" : "From"}
           <input
             type="date"
             min={minDay}
             max={maxDay}
             value={from}
-            onChange={(e) => {
-              setFrom(e.target.value);
-              setPage(0);
-            }}
+            onChange={(e) => { setFrom(e.target.value); setPage(0); }}
           />
         </label>
+
         {mode === "range" && (
           <label>
-            To{" "}
+            To
             <input
               type="date"
               min={minDay}
               max={maxDay}
               value={to}
-              onChange={(e) => {
-                setTo(e.target.value);
-                setPage(0);
-              }}
+              onChange={(e) => { setTo(e.target.value); setPage(0); }}
             />
           </label>
         )}
+
         <label>
           <input
             type="checkbox"
             checked={failuresOnly}
-            onChange={(e) => {
-              setFailuresOnly(e.target.checked);
-              setPage(0);
-            }}
-          />{" "}
+            onChange={(e) => { setFailuresOnly(e.target.checked); setPage(0); }}
+          />
           Failures only
         </label>
+
         <button onClick={clear}>Clear</button>
       </div>
 
@@ -177,7 +163,7 @@ export default function LogsSection() {
         </p>
       )}
 
-      {badRange && <p role="alert">The start date is after the end date.</p>}
+      {badRange && <p role="alert">Start date is after end date.</p>}
       {result?.error && <p role="alert">Could not load logs: {result.error}</p>}
 
       {!badRange && result && (
@@ -196,29 +182,35 @@ export default function LogsSection() {
             <tbody>
               {result.rows.map((r) => (
                 <tr key={`${r.service_id}-${r.ts}`}>
-                  <td>{r.ts.replace("T", " ").slice(0, 16)}</td>
-                  <td>{r.service_id}</td>
+                  <td style={{ fontVariantNumeric: "tabular-nums", color: "var(--text-muted)", fontSize: "0.82rem" }}>
+                    {r.ts.replace("T", " ").slice(0, 16)}
+                  </td>
+                  <td style={{ fontWeight: 500 }}>{r.service_id}</td>
                   <td>
                     <span className={`badge ${r.status_code >= 500 ? "bad" : "good"}`}>
                       {r.status_code}
                     </span>
                   </td>
-                  <td>{r.latency_ms == null ? "—" : `${Math.round(Number(r.latency_ms))} ms`}</td>
-                  <td>{r.agent ?? "—"}</td>
-                  <td>{r.region ?? "—"}</td>
+                  <td style={{ fontVariantNumeric: "tabular-nums" }}>
+                    {r.latency_ms == null ? "—" : `${Math.round(Number(r.latency_ms))} ms`}
+                  </td>
+                  <td style={{ color: "var(--text-muted)" }}>{r.agent ?? "—"}</td>
+                  <td style={{ color: "var(--text-muted)" }}>{r.region ?? "—"}</td>
                 </tr>
               ))}
             </tbody>
           </table>
-          {result.rows.length === 0 && <p>No checks match these filters.</p>}
+
+          {result.rows.length === 0 && (
+            <div className="empty-state">No checks match these filters.</div>
+          )}
 
           <div className="pager">
             <button disabled={page === 0} onClick={() => setPage((p) => p - 1)}>
               ← Prev
             </button>
             <span>
-              {total ? start + 1 : 0}–{Math.min(start + PAGE_SIZE, total)} of{" "}
-              {total.toLocaleString()}
+              {total ? start + 1 : 0}–{Math.min(start + PAGE_SIZE, total)} of {total.toLocaleString()}
             </span>
             <button disabled={page >= lastPage} onClick={() => setPage((p) => p + 1)}>
               Next →

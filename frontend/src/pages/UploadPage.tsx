@@ -40,49 +40,92 @@ export default function UploadPage() {
   }
 
   return (
-    <main style={{ padding: 16, maxWidth: 720 }}>
+    <div className="upload-page">
       <h1>Upload monitoring data</h1>
-      <input
-        type="file"
-        accept=".csv,text/csv"
-        onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-      />
-      <button onClick={handleUpload} disabled={!file || busy} style={{ marginLeft: 8 }}>
-        {busy ? "Processing…" : "Upload"}
+
+      <div className="upload-dropzone">
+        <input
+          type="file"
+          accept=".csv,text/csv"
+          onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+        />
+        <p>Accepts .csv files exported from your monitoring tool</p>
+      </div>
+
+      <button
+        className="primary"
+        onClick={handleUpload}
+        disabled={!file || busy}
+        style={{ width: "fit-content" }}
+      >
+        {busy ? "Processing…" : "Upload CSV"}
       </button>
 
-      {result && !result.ok && <p role="alert">Error: {result.error}</p>}
+      {result && !result.ok && (
+        <p role="alert">Error: {result.error}</p>
+      )}
 
       {result?.ok && result.report && (
-        <section>
-          <h2>Upload processed</h2>
-          <p>
-            {result.report.accepted} of {result.report.total} rows accepted,{" "}
-            {result.report.rejected} rejected.
-          </p>
-          <h3>Data cleaning</h3>
-          <table>
-            <tbody>
-              {Object.entries(result.report.counts).map(([k, v]) => (
-                <tr key={k}><td>{k.replace(/_/g, " ")}</td><td>{v}</td></tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="upload-result">
+          <h2>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="20 6 9 17 4 12" />
+            </svg>
+            Upload processed
+          </h2>
+
+          <div className="stat-row">
+            <div className="stat-pill">
+              <span className="val">{result.report.total}</span>
+              <span className="lbl">Total</span>
+            </div>
+            <div className="stat-pill" style={{ borderColor: "var(--good-bg)" }}>
+              <span className="val" style={{ color: "var(--good-text)" }}>{result.report.accepted}</span>
+              <span className="lbl">Accepted</span>
+            </div>
+            <div className="stat-pill" style={{ borderColor: result.report.rejected > 0 ? "var(--bad-bg)" : undefined }}>
+              <span className="val" style={{ color: result.report.rejected > 0 ? "var(--bad-text)" : undefined }}>
+                {result.report.rejected}
+              </span>
+              <span className="lbl">Rejected</span>
+            </div>
+          </div>
+
+          <div>
+            <h3>Data cleaning</h3>
+            <table className="upload-table">
+              <tbody>
+                {Object.entries(result.report.counts).map(([k, v]) => (
+                  <tr key={k}>
+                    <td>{k.replace(/_/g, " ")}</td>
+                    <td>{v}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
           {result.merge && (
-            <>
+            <div>
               <h3>Merge with existing data</h3>
-              <table>
+              <table className="upload-table">
                 <tbody>
                   {Object.entries(result.merge).map(([k, v]) => (
-                    <tr key={k}><td>{k.replace(/_/g, " ")}</td><td>{v}</td></tr>
+                    <tr key={k}>
+                      <td>{k.replace(/_/g, " ")}</td>
+                      <td>{v}</td>
+                    </tr>
                   ))}
                 </tbody>
               </table>
-            </>
+            </div>
           )}
-          <p><Link to="/">View dashboard →</Link></p>
-        </section>
+
+          <Link to="/" className="view-dashboard-link">
+            View dashboard →
+          </Link>
+        </div>
       )}
-    </main>
+    </div>
   );
 }
